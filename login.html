@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masuk - ZulaStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-light: #eef2ff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --bg-body: #f8fafc;
+            --border-color: #e2e8f0;
+            --danger: #ef4444;
+            --success: #10b981;
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-body); color: var(--text-main); display: flex; flex-direction: column; min-height: 100vh; }
+
+        header {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 16px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-box { display: flex; align-items: center; gap: 10px; text-decoration: none; max-width: 1200px; margin: 0 auto; width: 100%; }
+        .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), #818cf8); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; }
+        .logo-text { font-size: 1.15rem; font-weight: 700; color: var(--text-main); }
+
+        .auth-container { max-width: 440px; width: 100%; margin: auto; padding: 30px 16px; flex-grow: 1; display: flex; align-items: center; }
+        .auth-card { background: white; border: 1px solid var(--border-color); border-radius: 20px; padding: 35px; box-shadow: var(--shadow-md); width: 100%; }
+        .auth-header { text-align: center; margin-bottom: 25px; }
+        .auth-header h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
+        .auth-header p { font-size: 0.85rem; color: var(--text-muted); }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
+        .input-icon-wrap { position: relative; display: flex; align-items: center; }
+        .input-icon-wrap i { position: absolute; left: 14px; color: var(--text-muted); font-size: 0.9rem; }
+        .input-icon-wrap input { width: 100%; padding: 12px 14px 12px 40px; border: 1px solid var(--border-color); border-radius: var(--radius); font-size: 0.9rem; outline: none; background: #f8fafc; }
+        .input-icon-wrap input:focus { border-color: var(--primary); background: white; }
+
+        .btn { display: inline-flex; align-items: center; justify-content: center; width: 100%; padding: 12px; border-radius: var(--radius); font-weight: 600; font-size: 0.9rem; border: none; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+
+        .auth-footer-text { text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--text-muted); }
+        .auth-footer-text a { color: var(--primary); font-weight: 600; text-decoration: none; }
+        .auth-footer-text a:hover { text-decoration: underline; }
+
+        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 300; display: flex; flex-direction: column; gap: 10px; max-width: 350px; }
+        .toast { background: #0f172a; color: white; padding: 10px 16px; border-radius: var(--radius); box-shadow: var(--shadow-md); display: flex; align-items: center; gap: 10px; font-size: 0.85rem; opacity: 0; transform: translateY(20px); transition: all 0.3s; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast i { color: var(--success); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo-box">
+            <div class="logo-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+            <span class="logo-text">ZulaStore</span>
+        </a>
+    </header>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2>Selamat Datang Kembali</h2>
+                <p>Masuk ke akun ZulaStore Anda</p>
+            </div>
+            <form id="loginForm" onsubmit="handleLoginSubmit(event)">
+                <div class="form-group">
+                    <label>Alamat Email</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa-solid fa-envelope"></i>
+                        <input type="email" id="loginEmail" placeholder="nama@email.com" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Kata Sandi</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="loginPassword" placeholder="••••••••" required>
+                    </div>
+                </div>
+                <button type="submit" id="loginSubmitBtn" class="btn btn-primary" style="margin-top:10px;">Masuk Sekarang</button>
+            </form>
+            <div class="auth-footer-text">
+                Belum punya akun? <a href="register.html">Daftar di sini</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAKJjwrFD4AFG0z-igJvKcgX8cEjm0RX5U",
+            authDomain: "toko-c7ad2.firebaseapp.com",
+            projectId: "toko-c7ad2",
+            storageBucket: "toko-c7ad2.firebasestorage.app",
+            messagingSenderId: "1000133767610",
+            appId: "1:1000133767610:web:2f86382e9af9eaa61aed83"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        async function handleLoginSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const submitBtn = document.getElementById('loginSubmitBtn');
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Memproses...";
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showToast("Berhasil masuk! Mengalihkan...");
+                setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+            } catch (error) {
+                let pesanError = "Gagal masuk. Periksa kembali email dan kata sandi.";
+                if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    pesanError = "Email atau kata sandi salah.";
+                }
+                showToast(pesanError);
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Masuk Sekarang";
+            }
+        }
+        window.handleLoginSubmit = handleLoginSubmit;
+    </script>
+</body>
+</html>
